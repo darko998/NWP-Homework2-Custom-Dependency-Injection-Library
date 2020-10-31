@@ -221,7 +221,9 @@ public class DIEngine {
     }
 
     public static void scanAllClasses(Object target) {
-        List<Class> classes = getClassesInPackage("testPackage");
+
+        // Here we pass package name "" because we want to start scanning from root package (src)
+        List<Class> classes = getClassesInPackage("");
 
         for(Class cl : classes) {
             if(cl.isAnnotationPresent(Bean.class) || cl.isAnnotationPresent(Service.class)) {
@@ -274,6 +276,7 @@ public class DIEngine {
 
         String name;
         for (String classpathEntry : classPathEntries) {
+
             if (!classpathEntry.endsWith(".jar")) {
 
                 try {
@@ -287,15 +290,16 @@ public class DIEngine {
                             packageName = packageName.replace("\\", ".");
                             classes.add(Class.forName(packageName + "." + name));
                         } else {
-                            List<Class> subClasses = getClassesInPackage(packageName + "\\" + name);
+                            String tmpPackageName = packageName.equals("") ? name : packageName + "\\" + name;
+                            List<Class> subClasses = getClassesInPackage(tmpPackageName);
 
                             for(Class cl : subClasses) {
                                 classes.add(cl);
                             }
                         }
                     }
-                } catch (Exception ex) {
-                    // Silence is gold
+                } catch (Exception e) {
+                    System.out.println(e);
                 }
             }
         }
